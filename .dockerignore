@@ -1,0 +1,12 @@
+node_modules
+dist
+build
+.git
+.github
+.manus-logs
+.webdev
+.vscode
+.idea
+uploads
+*.log
+.DS_Store
