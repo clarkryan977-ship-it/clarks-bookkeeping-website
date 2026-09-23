@@ -14,6 +14,7 @@ const __dirname = path.dirname(__filename);
 async function startServer() {
   const app = express();
   const server = createServer(app);
+  const siteOrigin = "https://clarksbookkeepingandtaxprep.com";
 
   app.set("trust proxy", true);
   app.use(express.json({ limit: "2mb" }));
@@ -25,6 +26,32 @@ async function startServer() {
       credentials: true,
     })
   );
+
+  // Keep crawler discovery files ahead of the SPA fallback.
+  app.get("/robots.txt", (_req, res) => {
+    res
+      .type("text/plain")
+      .set("Cache-Control", "public, max-age=86400")
+      .send(`User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /portal
+
+Sitemap: ${siteOrigin}/sitemap.xml
+`);
+  });
+
+  app.get("/sitemap.xml", (_req, res) => {
+    res
+      .type("application/xml")
+      .set("Cache-Control", "public, max-age=86400")
+      .send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${siteOrigin}/</loc>
+  </url>
+</urlset>`);
+  });
 
   // API routes
   app.use("/api", apiRouter);
